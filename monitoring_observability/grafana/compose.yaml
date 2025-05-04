@@ -1,0 +1,19 @@
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana_turkcell
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - data_grafana:/var/lib/grafana
+    networks:
+      - kudim
+
+volumes:
+  data_grafana:
+    external: true
+
+networks:
+  kudim:
+    external: true
