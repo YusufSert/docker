@@ -1,5 +1,5 @@
 services:
-  service1:
+  service:
     image: yusufcansert123/go_test:0.0.3
     ports:
       - target: 8080 # container port

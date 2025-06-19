@@ -1,3 +1,19 @@
 docker swarm init --advertise-addr <host-ip>
 
 
+watch -n 0.5 curl http://192.168.3.245:30005/handle
+docker service rollback mystack4_promtail 
+docker stack deploy -c docker-compose.yml mystack4
+
+docker service create \                   
+  --name test_service \
+  --network test_overlay \
+  --publish published=0,target=8080 \
+  --update-delay 10s \
+  --replicas 2 yusufcansert123/go_test:0.0.3
+docker service scale go_test=5               
+docker port mystack_web.2.oqy7lvv068nwqd3h9cl72vvq0  80
+docker node ps raspberrypiVC
+
+replicas = 1, node = 2
+if host 1 dies other host will create new container or new task
