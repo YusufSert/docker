@@ -1,0 +1,95 @@
+---
+services:
+  loki:
+    container_name: loki_x-company
+    image: grafana/loki:3.4.1
+    command: "-config.file=/etc/loki/config.yaml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config/config.yaml:/etc/loki/config.yaml:ro
+      - data_loki:/loki:rw
+    networks:
+      - x_company
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/config/config.yml:/etc/promtail/config.yml
+    networks:
+      - x_company
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana_x-company
+    volumes:
+      - data_grafana:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - x_company
+    ports:
+      - "3000:3000"
+
+  service-1:
+    image: yusufcansert123/fake_ai:0.0.1
+    container_name: service-1
+    restart: unless-stopped
+    networks:
+      - x_company
+    #ports:
+    # - "8000:8000"
+    labels:
+      - "traefik.http.routers.service-1.rule=Host(`service-1.localhost`)"
+
+  service-2:
+    image: yusufcansert123/fake_ai:0.0.2
+    container_name: service-2
+    restart: unless-stopped
+    networks:
+      - x_company
+    #ports:
+    # - "8001:8000"
+    labels:
+      - "traefik.http.routers.service-2.rule=Host(`service-2.localhost`)"
+
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.4
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      - "8000:8000"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - x_company
+
+  nginx:
+    container_name: nginx-demo-2
+    image: nginx:latest
+    labels:
+      - "traefik.http.routers.nginx.rule=Host(`nginx.localhost`)"
+      - "traefik.http.routers.nginx.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=user:$$apr1$$OPfIy372$$THRtFcHF79MXepqM2Yo5k0"
+    networks:
+      - x_company
+
+#nfs volume
+volumes:
+  data_loki:
+    external: true
+  data_grafana:
+    external: true
+
+networks:
+  x_company:
+    external: true

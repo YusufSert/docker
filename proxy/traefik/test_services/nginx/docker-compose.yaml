@@ -1,0 +1,9 @@
+services:
+  nginx:
+    container_name: nginx-demo-1
+    image: nginx:latest
+    networks:
+      - proxy_traefik
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`nginx.docker.localhost`)"
+    restart: unless-stopped

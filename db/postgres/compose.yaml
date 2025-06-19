@@ -1,0 +1,31 @@
+services:
+  postgres:
+    container_name: db
+    image: postgres
+    networks:
+      - kudim
+    ports:
+      - "5431:5432"
+    restart: always
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    volumes:
+       - "data_pg:/var/lib/postgresql/data"
+    # or set shared memeory limit when deploy via swarn stack
+    # volumes:
+    #   - type: tmpfs
+    #     target: /dev/shm
+    #     tmpfs:
+    #       size: 134217728 # 128*2'20 btyes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+
+networks:
+  kudim:
+    external: true
+
+volumes:
+  data_pg:
+    external: true
+

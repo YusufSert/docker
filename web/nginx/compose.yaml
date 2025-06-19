@@ -5,20 +5,20 @@ services:
     volumes:
       - ./html:/usr/share/nginx/html
     networks:
-      - kudim
+      - x_company
     logging:
       driver: loki
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-url: "http://loki_x-company:3100/loki/api/v1/push"
         loki-retries: 5
         loki-max-backoff: 800ms
         loki-timeout: 5s
         keep-file: "true"
         mode: "non-blocking"
     ports:
-      - 8080:80
+      - 8081:80
     restart: unless-stopped
 
 networks:
-  kudim:
+  x_company:
     external: true

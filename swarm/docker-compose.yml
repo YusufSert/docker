@@ -1,0 +1,63 @@
+services:
+  service1:
+    image: yusufcansert123/go_test:0.0.3
+    ports:
+      - target: 8080 # container port
+        published: 0 # host port
+        protocol: tcp
+        mode: ingress # enable routing mesh (load balancing)
+
+    networks:
+      - webnet
+    deploy:
+      replicas: 2
+
+  loki:
+    image: grafana/loki:3.4.1
+    command: "-config.file=/etc/loki/config.yaml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config/config.yaml:/etc/loki/config.yaml:ro
+      - data_loki:/loki:rw
+    networks:
+      - webnet
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/config/config.yml:/etc/promtail/config.yml
+    networks:
+      - webnet
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  grafana:
+    image: grafana/grafana-enterprise
+    volumes:
+      - data_grafana:/var/lib/grafana
+    networks:
+      - webnet
+    ports:
+      - "3000:3000"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  webnet:
+    driver: overlay
+volumes:
+  data_grafana:
+    external: true
+  data_loki:
+    external: true
