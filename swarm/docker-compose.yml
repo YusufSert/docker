@@ -1,12 +1,15 @@
 services:
   service:
-    image: yusufcansert123/go_test:0.0.3
+    image: yusufcansert123/go_multi:0.1
+    command: "-config.path=/conf"
+    configs:
+      - source: conf
+        target: /conf
     ports:
       - target: 8080 # container port
         published: 0 # host port
         protocol: tcp
         mode: ingress # enable routing mesh (load balancing)
-
     networks:
       - webnet
     deploy:
@@ -35,10 +38,16 @@ services:
       - ./promtail/config/config.yml:/etc/promtail/config.yml
     networks:
       - webnet
+    configs:
+      - source: promtail
+        target: /etc/promtail/config.yml
     deploy:
-      placement:
-        constraints:
-          - node.role == manager
+      mode:
+        global
+        #deploy:
+        #placement:
+        #constraints:
+        # - node.role == manager
 
   grafana:
     image: grafana/grafana-enterprise
@@ -60,4 +69,10 @@ volumes:
   data_grafana:
     external: true
   data_loki:
+    external: true
+
+configs:
+  conf:
+    external: true
+  promtail:
     external: true
