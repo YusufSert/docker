@@ -1,0 +1,20 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    user: root
+    volumes:
+      # Prometheus config
+      - ./:/etc/prometheus/:ro
+      # Docker socket for Swarm service discovery
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Optional data persistence
+      # - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager # Swarm API only works on manager nodes
+
+#volumes:
+#prometheus-data:

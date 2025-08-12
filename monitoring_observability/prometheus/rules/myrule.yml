@@ -1,0 +1,5 @@
+groups:
+  - name: my-rule
+    rules:
+      - record: job:prometheus_http_requests_total
+        expr: prometheus_http_requests_total

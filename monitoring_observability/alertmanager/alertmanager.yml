@@ -1,0 +1,12 @@
+route:
+  receiver: admin
+
+receivers:
+  - name: admin
+    email_configs:
+      - to: "yusufcansert123@gmail.com"
+        from: "yusufcansert123@gmail.com"
+        smarthost: smtp.gmail.com:587
+        auth_username: "yusufcansert123@gmail.com"
+        auth_identity: "yusufcansert123@gmail.com"
+        auth_password: "choy dejq dtxl ldwl"

@@ -1,0 +1,9 @@
+services:
+  test-metrics:
+    image: task_runner:0.3
+    deploy:
+      labels:
+        prometheus-job: test-metrics
+      replicas: 1
+    ports:
+      - 8080:8080

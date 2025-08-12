@@ -1,10 +1,47 @@
 global:
   scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "/etc/prometheus/rules/myrule.yml"
+  - "/etc/prometheus/rules/alerting_rules.yml"
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
 
 scrape_configs:
-  - job_name: promtail
+  - job_name: prometheus
     static_configs:
       - targets: [localhost:9090]
   - job_name: "local_app"
     static_configs:
-      - targets: ["192.168.3.245:8080"]
+      - targets: ["nice_shamir:8080"]
+  # docker swarm service discovery
+  - job_name: "dockerswarm"
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: tasks
+    relabel_configs:
+      # Only keep containers that should be running.
+      - source_labels: [__meta_dockerswarm_task_desired_state]
+        regex: running
+        action: keep
+      - source_labels:
+          [
+            __meta_dockerswarm_node_address,
+            _meta_dockerswarm_task_port_published,
+          ]
+        separator: ":"
+        target_label: __addres__
+      # Only keep containers that have a `prometheues-job` label.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_job]
+        regex: .+
+        action: keep
+      - source_labels: [__meta_dockerswarm_sevice_label_prometheus_job]
+        target_label: job
+      - source_labels: [__meta_dockerswarm_node_hostname]
+        target_label: docker_node
